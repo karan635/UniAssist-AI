@@ -2,7 +2,7 @@ from typing import List, Optional
 
 from langchain_core.documents import Document
 
-from app.services.knowledge.knowledge_manager import KnowledgeManager
+from app.services.rag.document_loader import DocumentLoader
 from app.services.rag.chunk_service import ChunkService
 from app.services.rag.embedding_service import EmbeddingService
 from app.services.rag.vector_store import VectorStoreService
@@ -39,8 +39,8 @@ class IndexManager:
         # Core services
         # -----------------------------------------
 
+        self.document_loader = DocumentLoader()
         self.section_splitter = SectionSplitter()
-        self.knowledge_manager = KnowledgeManager()
         self.embedding_service = EmbeddingService()
         self.chunk_service = ChunkService()
         self.vector_store = VectorStoreService()
@@ -60,14 +60,17 @@ class IndexManager:
     # DOCUMENT LOADING
     # =========================================================
 
-    def load_documents(self, force: bool = False) -> List[Document]:
+    def load_documents(
+        self,
+        force: bool = False
+    ) -> List[Document]:
 
         if self.documents and not force:
             return self.documents
 
         print("\n========== DOCUMENT LOADING ==========")
 
-        self.documents = self.knowledge_manager.load_documents()
+        self.documents = self.document_loader.load_documents()
 
         print(
             f"Total documents/pages loaded: "
@@ -80,7 +83,11 @@ class IndexManager:
     # CHUNK BUILDING
     # =========================================================
 
-    def build_chunks(self, force: bool = False) -> List[Document]:
+    def build_chunks(
+        self,
+        force: bool = False
+    ) -> List[Document]:
+
         """
         Build sections and chunks from loaded documents.
         """
@@ -105,7 +112,10 @@ class IndexManager:
             f"{len(all_sections)}"
         )
 
+        # -----------------------------------------
         # Create chunks
+        # -----------------------------------------
+
         self.chunks = self.chunk_service.split_documents(
             all_sections
         )
@@ -121,7 +131,10 @@ class IndexManager:
     # EMBEDDINGS
     # =========================================================
 
-    def load_embeddings(self, force: bool = False):
+    def load_embeddings(
+        self,
+        force: bool = False
+    ):
 
         if self.embeddings is not None and not force:
             return self.embeddings
@@ -142,23 +155,31 @@ class IndexManager:
     # BUILD VECTOR STORE
     # =========================================================
 
-    def build_vector_store(self, force: bool = False):
+    def build_vector_store(
+        self,
+        force: bool = False
+    ):
 
         if force:
             self.db = None
             self.retriever = None
 
+        # -----------------------------------------
         # Make sure chunks exist
+        # -----------------------------------------
+
         if not self.chunks:
             self.build_chunks()
 
-        # Safety check
         if not self.chunks:
             raise ValueError(
                 "No chunks available to build FAISS vector store."
             )
 
+        # -----------------------------------------
         # Make sure embeddings exist
+        # -----------------------------------------
+
         if self.embeddings is None:
             self.load_embeddings()
 
@@ -263,7 +284,7 @@ class IndexManager:
         # Build FAISS
         # -----------------------------------------
 
-        self.build_vector_store()
+        self.build_vector_store(force=True)
 
         # -----------------------------------------
         # COMPLETE
@@ -292,7 +313,9 @@ class IndexManager:
     # DOCUMENT ACCESS
     # =========================================================
 
-    def get_documents(self) -> List[Document]:
+    def get_documents(
+        self
+    ) -> List[Document]:
 
         if not self.documents:
             self.load_documents()
@@ -303,7 +326,9 @@ class IndexManager:
     # CHUNK ACCESS
     # =========================================================
 
-    def get_chunks(self) -> List[Document]:
+    def get_chunks(
+        self
+    ) -> List[Document]:
 
         if not self.chunks:
             self.build_chunks()

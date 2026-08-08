@@ -139,8 +139,6 @@ class SectionSplitter:
 
     def detect_year(self, text: str):
 
-        # Prefer explicit placement/batch/year expressions
-
         match = re.search(
             r"(?:placement\s+year|batch|year|passing\s+out).*?"
             r"\b(20\d{2})\b",
@@ -150,8 +148,6 @@ class SectionSplitter:
 
         if match:
             return int(match.group(1))
-
-        # General fallback
 
         years = re.findall(
             r"\b(20\d{2})\b",
@@ -167,7 +163,10 @@ class SectionSplitter:
     # PLACEMENT DETECTION
     # =========================================================
 
-    def is_placement_document(self, document: Document):
+    def is_placement_document(
+        self,
+        document: Document
+    ):
 
         metadata = document.metadata
 
@@ -199,6 +198,242 @@ class SectionSplitter:
         )
 
     # =========================================================
+    # ACADEMIC CALENDAR DETECTION
+    # =========================================================
+
+    def is_academic_calendar_document(
+        self,
+        document: Document
+    ):
+
+        metadata = document.metadata
+
+        filename = str(
+            metadata.get(
+                "filename",
+                ""
+            )
+        ).lower()
+
+        topic = str(
+            metadata.get(
+                "topic",
+                ""
+            )
+        ).lower()
+
+        document_type = str(
+            metadata.get(
+                "document_type",
+                ""
+            )
+        ).lower()
+
+        category = str(
+            metadata.get(
+                "category",
+                ""
+            )
+        ).lower()
+
+        return (
+            "academiccalendar" in filename
+            or "academic calendar" in filename
+            or topic == "academic calendar"
+            or document_type == "academic_calendar"
+            or "academiccalendar" in category
+        )
+
+    # =========================================================
+    # ACADEMIC CALENDAR COURSE GROUP
+    # =========================================================
+
+    def detect_calendar_group(
+        self,
+        text: str
+    ):
+
+        text_upper = text.upper()
+
+        # PG
+        if re.search(
+            r"\bALL\s+PG\s+STUDENTS\b"
+            r"|\bPG\s+STUDENTS\b"
+            r"|\bPOST\s*GRADUATE\b",
+            text_upper
+        ):
+            return "PG"
+
+        # UG
+        if re.search(
+            r"\bALL\s+UG\s+STUDENTS\b"
+            r"|\bUG\s+STUDENTS\b"
+            r"|\bUNDER\s*GRADUATE\b",
+            text_upper
+        ):
+            return "UG"
+
+        # PhD
+        if re.search(
+            r"\bALL\s+PH\.?\s*D\.?\s+STUDENTS\b"
+            r"|\bPH\.?\s*D\.?\s+STUDENTS\b"
+            r"|\bDOCTORAL\s+STUDENTS\b",
+            text_upper
+        ):
+            return "PHD"
+
+        return None
+
+    # =========================================================
+    # ACADEMIC CALENDAR SPLITTER
+    # =========================================================
+
+    def split_academic_calendar(
+        self,
+        document: Document
+    ):
+
+        text = document.page_content.strip()
+
+        if not text:
+            return []
+
+        base_metadata = document.metadata.copy()
+
+        base_metadata["document_type"] = (
+            "academic_calendar"
+        )
+
+        base_metadata["topic"] = (
+            "Academic Calendar"
+        )
+
+        # -----------------------------------------------------
+        # Detect year
+        # -----------------------------------------------------
+
+        year = self.detect_year(text)
+
+        if year:
+            base_metadata["year"] = year
+
+        # -----------------------------------------------------
+        # Detect semester
+        # -----------------------------------------------------
+
+        text_upper = text.upper()
+
+        if "SPRING" in text_upper:
+            base_metadata["semester"] = "Spring"
+
+        elif "MONSOON" in text_upper:
+            base_metadata["semester"] = "Monsoon"
+
+        # -----------------------------------------------------
+        # Find UG / PG / PhD sections
+        # -----------------------------------------------------
+
+        pattern = re.compile(
+            r"^(?:"
+            r"Academic Calendar for All UG Students.*|"
+            r"Academic Calendar for All PG Students.*|"
+            r"Academic Calendar for All Ph\.?\s*D\.?\s*Students.*|"
+            r"Academic Calendar.*UG.*|"
+            r"Academic Calendar.*PG.*|"
+            r"Academic Calendar.*Ph\.?\s*D.*"
+            r")$",
+            re.MULTILINE | re.IGNORECASE
+        )
+
+        matches = list(
+            pattern.finditer(text)
+        )
+
+        # -----------------------------------------------------
+        # If headings were not detected, determine group
+        # from complete page.
+        # -----------------------------------------------------
+
+        if not matches:
+
+            group = self.detect_calendar_group(
+                text
+            )
+
+            metadata = base_metadata.copy()
+
+            metadata["course"] = group
+
+            metadata["calendar_group"] = group
+
+            metadata["section"] = (
+                f"{group} Academic Calendar"
+                if group
+                else "Academic Calendar"
+            )
+
+            return [
+                Document(
+                    page_content=text,
+                    metadata=metadata
+                )
+            ]
+
+        sections = []
+
+        for i, match in enumerate(matches):
+
+            start = match.start()
+
+            if i + 1 < len(matches):
+
+                end = matches[
+                    i + 1
+                ].start()
+
+            else:
+
+                end = len(text)
+
+            body = text[
+                start:end
+            ].strip()
+
+            if not body:
+                continue
+
+            heading = match.group().strip()
+
+            group = self.detect_calendar_group(
+                heading
+            )
+
+            # If heading does not identify it,
+            # check the section body.
+            if not group:
+
+                group = self.detect_calendar_group(
+                    body
+                )
+
+            metadata = base_metadata.copy()
+
+            metadata["course"] = group
+
+            metadata["calendar_group"] = group
+
+            metadata["section"] = heading
+
+            sections.append(
+                Document(
+                    page_content=body,
+                    metadata=metadata
+                )
+            )
+
+        return sections
+
+    # =========================================================
     # PLACEMENT SPLITTER
     # =========================================================
 
@@ -214,33 +449,17 @@ class SectionSplitter:
 
         metadata = document.metadata.copy()
 
-        # Detect all courses represented
         courses = self.detect_courses(text)
 
         if courses:
             metadata["courses"] = courses
 
-        # IMPORTANT:
-        # Do NOT assign one course to a multi-course
-        # placement document.
-        #
-        # Example:
-        #
-        # Placement_2026.pdf
-        #     B.Tech
-        #     MCA
-        #
-        # Therefore:
-        #
-        # course = None
-        # courses = ["B.TECH", "MCA"]
-
         if len(courses) == 1:
             metadata["course"] = courses[0]
+
         else:
             metadata["course"] = None
 
-        # Year
         year = self.detect_year(text)
 
         if year:
@@ -272,6 +491,14 @@ class SectionSplitter:
             r"^(?:"
             r"Master of Computer Application|"
             r"Master of Business Administration|"
+            r"Bachelor of Computer Application|"
+            r"Bachelor of Business Administration|"
+            r"Bachelor of Architecture|"
+            r"Bachelor of Pharmacy|"
+            r"Master of Pharmacy|"
+            r"Master of Technology(?:\s*&\s*Master of Planning)?|"
+            r"Master of Science|"
+            r"Bachelor of Science|"
             r"B\.?\s*Tech|"
             r"B\.?\s*Arch|"
             r"B\.?\s*Pharm|"
@@ -293,7 +520,6 @@ class SectionSplitter:
 
         if not matches:
 
-            # Do not silently lose documents
             metadata = document.metadata.copy()
 
             course = self.detect_course(text)
@@ -320,11 +546,18 @@ class SectionSplitter:
             start = match.start()
 
             if i + 1 < len(matches):
-                end = matches[i + 1].start()
+
+                end = matches[
+                    i + 1
+                ].start()
+
             else:
+
                 end = len(text)
 
-            body = text[start:end].strip()
+            body = text[
+                start:end
+            ].strip()
 
             if not body:
                 continue
@@ -333,12 +566,25 @@ class SectionSplitter:
 
             metadata = document.metadata.copy()
 
-            course = self.detect_course(
+            all_courses = self.detect_courses(
                 body
             )
 
-            if course:
-                metadata["course"] = course
+            if len(all_courses) == 1:
+
+                metadata["course"] = (
+                    all_courses[0]
+                )
+
+            else:
+
+                metadata["course"] = None
+
+                if all_courses:
+
+                    metadata["courses"] = (
+                        all_courses
+                    )
 
             year = self.detect_year(
                 body
@@ -367,10 +613,16 @@ class SectionSplitter:
         document: Document
     ):
 
-        # -----------------------------------------
-        # PLACEMENT
-        # -----------------------------------------
+        # Academic Calendar
+        if self.is_academic_calendar_document(
+            document
+        ):
 
+            return self.split_academic_calendar(
+                document
+            )
+
+        # Placement
         if self.is_placement_document(
             document
         ):
@@ -379,10 +631,7 @@ class SectionSplitter:
                 document
             )
 
-        # -----------------------------------------
-        # NORMAL DOCUMENT
-        # -----------------------------------------
-
+        # Normal documents
         return self.split_normal_document(
             document
         )

@@ -1,7 +1,6 @@
 """Document retrieval service."""
 
 from langchain_community.vectorstores import FAISS
-from streamlit import context
 
 from app.services.rag.embedding_service import EmbeddingService
 from app.services.ai.query_analyzer import QueryAnalyzer
@@ -20,7 +19,9 @@ class RetrieverService:
 
         self.embedding_service = EmbeddingService()
 
-        self.embeddings = self.embedding_service.get_embeddings()
+        self.embeddings = (
+            self.embedding_service.get_embeddings()
+        )
 
         self.db = FAISS.load_local(
             "data/vector_store",
@@ -29,84 +30,639 @@ class RetrieverService:
         )
 
         self.query_analyzer = QueryAnalyzer()
+
         self.metadata_filter = MetadataFilter()
+
         self.knowledge_manager = KnowledgeManager()
+
         self.context_builder = ContextBuilder()
 
-    def search(self, query: str, k: int = 30):
+    # =====================================================
+    # SEARCH
+    # =====================================================
 
-    # -----------------------------------------
-    # 1. Analyze query
-    # -----------------------------------------
+    def search(
+        self,
+        query: str,
+        k: int = 30
+    ):
 
-        analysis = self.query_analyzer.analyze(query)
+        # =================================================
+        # 1. ANALYZE QUERY
+        # =================================================
 
-        print("\n========== QUERY ANALYSIS ==========")
+        analysis = self.query_analyzer.analyze(
+            query
+        )
+
+        print(
+            "\n========== QUERY ANALYSIS =========="
+        )
+
         print(analysis)
 
-    # -----------------------------------------
-    # 2. Raw FAISS retrieval
-    # -----------------------------------------
-
-        results = self.db.similarity_search(
-            query,
-            k=k
+        course = analysis.get(
+            "course"
         )
 
-        print("\n========== RAW FAISS RESULTS ==========")
-        print("Total:", len(results))
-
-        for i, doc in enumerate(results, start=1):
-
-            print(f"\n--- RAW DOCUMENT {i} ---")
-
-            print("COURSE :", repr(doc.metadata.get("course")))
-            print("TOPIC  :", repr(doc.metadata.get("topic")))
-            print("YEAR   :", repr(doc.metadata.get("year")))
-            print("FILE   :", repr(doc.metadata.get("filename")))
-            print("SECTION:", repr(doc.metadata.get("section")))
-            print("CHUNK  :", repr(doc.metadata.get("chunk_id")))
-
-            print("TEXT:")
-            print(doc.page_content[:500])
-
-    # -----------------------------------------
-    # 3. Metadata filtering
-    # -----------------------------------------
-
-        filtered = self.metadata_filter.filter_results(
-            results,
-            analysis
+        topic = analysis.get(
+            "topic"
         )
 
-        print("\n========== AFTER METADATA FILTER ==========")
-        print("Filtered:", len(filtered))
+        year = analysis.get(
+            "year"
+        )
 
-        for i, doc in enumerate(filtered, start=1):
+        # =================================================
+        # 2. NORMALIZE
+        # =================================================
 
-            print(f"\n--- FILTERED DOCUMENT {i} ---")
+        if course:
 
-            print("COURSE :", repr(doc.metadata.get("course")))
-            print("TOPIC  :", repr(doc.metadata.get("topic")))
-            print("YEAR   :", repr(doc.metadata.get("year")))
-            print("FILE   :", repr(doc.metadata.get("filename")))
-            print("SECTION:", repr(doc.metadata.get("section")))
+            course = (
+                self.metadata_filter
+                .normalize_course(course)
+            )
 
-    # -----------------------------------------
-    # 4. Context
-    # -----------------------------------------
+        if topic:
 
-        context = self.context_builder.build_context(filtered)
+            topic = (
+                self.metadata_filter
+                .normalize_topic(topic)
+            )
 
-        print("\n========== CONTEXT ==========")
-        print(context[:3000])
+        print(
+            "\nNormalized Course:",
+            course
+        )
 
-    # -----------------------------------------
-    # IMPORTANT
-    # -----------------------------------------
+        print(
+            "Normalized Topic:",
+            topic
+        )
+
+        print(
+            "Year:",
+            year
+        )
+
+        # =================================================
+        # 3. INITIALIZE
+        # =================================================
+
+        filtered = []
+
+        # =================================================
+        # 4. DIRECT DOCUMENT STORE
+        # =================================================
+        #
+        # FAISS keeps the original LangChain documents
+        # inside its docstore.
+        #
+        # We use these documents for structured topics
+        # instead of depending entirely on vector similarity.
+        # =================================================
+
+        all_documents = list(
+            self.db.docstore._dict.values()
+        )
+
+        print(
+            "\n========== FAISS DOCSTORE =========="
+        )
+
+        print(
+            "Total indexed documents:",
+            len(all_documents)
+        )
+
+        # =================================================
+        # 5. DEBUG ACADEMIC CALENDAR DOCUMENTS
+        # =================================================
+        #
+        # This is especially useful right now because
+        # we need to know exactly what metadata was stored
+        # for the calendar PDFs.
+        # =================================================
+
+        if topic == "Academic Calendar":
+
+            print(
+                "\n========== ALL ACADEMIC CALENDAR DOCUMENTS =========="
+            )
+
+            for doc in all_documents:
+
+                metadata = doc.metadata
+
+                filename = str(
+                    metadata.get(
+                        "filename",
+                        ""
+                    )
+                )
+
+                doc_topic = (
+                    self.metadata_filter
+                    .normalize_topic(
+                        metadata.get("topic")
+                    )
+                )
+
+                document_type = str(
+                    metadata.get(
+                        "document_type",
+                        ""
+                    )
+                ).lower()
+
+                if (
+                    doc_topic == "Academic Calendar"
+                    or document_type == "academic_calendar"
+                    or "academiccalendar" in (
+                        filename
+                        .lower()
+                        .replace(" ", "")
+                    )
+                ):
+
+                    print(
+                        "\nFILE:",
+                        filename
+                    )
+
+                    print(
+                        "METADATA:",
+                        metadata
+                    )
+
+                    print(
+                        "TEXT:",
+                        doc.page_content[:500]
+                    )
+
+        # =================================================
+        # 6. ACADEMIC CALENDAR
+        # =================================================
+
+        if topic == "Academic Calendar":
+
+            print(
+                "\n========== DIRECT ACADEMIC CALENDAR RETRIEVAL =========="
+            )
+
+            for doc in all_documents:
+
+                metadata = doc.metadata
+
+                filename = str(
+                    metadata.get(
+                        "filename",
+                        ""
+                    )
+                )
+
+                doc_topic = (
+                    self.metadata_filter
+                    .normalize_topic(
+                        metadata.get("topic")
+                    )
+                )
+
+                document_type = str(
+                    metadata.get(
+                        "document_type",
+                        ""
+                    )
+                ).lower()
+
+                doc_year = metadata.get(
+                    "year"
+                )
+
+                # -----------------------------------------
+                # TOPIC MATCH
+                # -----------------------------------------
+
+                topic_match = (
+                    doc_topic
+                    == "Academic Calendar"
+                    or document_type
+                    == "academic_calendar"
+                    or "academiccalendar" in (
+                        filename
+                        .lower()
+                        .replace(" ", "")
+                    )
+                )
+
+                if not topic_match:
+
+                    continue
+
+                # -----------------------------------------
+                # YEAR MATCH
+                # -----------------------------------------
+
+                if year:
+
+                    year_match = False
+
+                    if doc_year is not None:
+
+                        try:
+
+                            year_match = (
+                                int(doc_year)
+                                == int(year)
+                            )
+
+                        except (
+                            ValueError,
+                            TypeError
+                        ):
+
+                            year_match = False
+
+                    # Filename fallback
+
+                    if not year_match:
+
+                        year_match = (
+                            str(year)
+                            in filename
+                        )
+
+                    if not year_match:
+
+                        continue
+
+                # -----------------------------------------
+                # COURSE MATCH
+                # -----------------------------------------
+
+                if course:
+
+                    if not (
+                        self.metadata_filter
+                        .course_matches(
+                            doc,
+                            course
+                        )
+                    ):
+
+                        continue
+
+                # -----------------------------------------
+                # ADD
+                # -----------------------------------------
+
+                filtered.append(
+                    doc
+                )
+
+            print(
+                "\nAcademic Calendar candidates:",
+                len(filtered)
+            )
+
+        # =================================================
+        # 7. FEES / PLACEMENT / ADMISSION / ELIGIBILITY
+        # =================================================
+
+        elif topic in {
+            "Fees",
+            "Placement",
+            "Admission",
+            "Eligibility"
+        }:
+
+            print(
+                f"\n========== DIRECT {topic.upper()} RETRIEVAL =========="
+            )
+
+            for doc in all_documents:
+
+                metadata = doc.metadata
+
+                doc_topic = (
+                    self.metadata_filter
+                    .normalize_topic(
+                        metadata.get("topic")
+                    )
+                )
+
+                doc_year = metadata.get(
+                    "year"
+                )
+
+                # -----------------------------------------
+                # TOPIC
+                # -----------------------------------------
+
+                if doc_topic != topic:
+
+                    continue
+
+                # -----------------------------------------
+                # YEAR
+                # -----------------------------------------
+
+                if year:
+
+                    if doc_year is not None:
+
+                        try:
+
+                            if int(doc_year) != int(
+                                year
+                            ):
+
+                                continue
+
+                        except (
+                            ValueError,
+                            TypeError
+                        ):
+
+                            continue
+
+                # -----------------------------------------
+                # COURSE
+                # -----------------------------------------
+
+                if course:
+
+                    if not (
+                        self.metadata_filter
+                        .course_matches(
+                            doc,
+                            course
+                        )
+                    ):
+
+                        continue
+
+                filtered.append(
+                    doc
+                )
+
+            print(
+                f"{topic} candidates:",
+                len(filtered)
+            )
+
+        # =================================================
+        # 8. FALLBACK TO FAISS
+        # =================================================
+        #
+        # If direct retrieval doesn't find anything,
+        # fall back to semantic search.
+        # =================================================
+
+        if not filtered:
+
+            print(
+                "\n========== FALLBACK FAISS SEARCH =========="
+            )
+
+            results = (
+                self.db.similarity_search(
+                    query,
+                    k=k
+                )
+            )
+
+            print(
+                "Raw FAISS results:",
+                len(results)
+            )
+
+            # Debug raw results
+
+            for i, doc in enumerate(
+                results,
+                start=1
+            ):
+
+                print(
+                    f"\n--- RAW DOCUMENT {i} ---"
+                )
+
+                print(
+                    "COURSE:",
+                    doc.metadata.get(
+                        "course"
+                    )
+                )
+
+                print(
+                    "COURSES:",
+                    doc.metadata.get(
+                        "courses"
+                    )
+                )
+
+                print(
+                    "TOPIC:",
+                    doc.metadata.get(
+                        "topic"
+                    )
+                )
+
+                print(
+                    "YEAR:",
+                    doc.metadata.get(
+                        "year"
+                    )
+                )
+
+                print(
+                    "FILE:",
+                    doc.metadata.get(
+                        "filename"
+                    )
+                )
+
+                print(
+                    "SECTION:",
+                    doc.metadata.get(
+                        "section"
+                    )
+                )
+
+                print(
+                    "CHUNK:",
+                    doc.metadata.get(
+                        "chunk_id"
+                    )
+                )
+
+                print(
+                    "TEXT:"
+                )
+
+                print(
+                    doc.page_content[:1000]
+                )
+
+            filtered = (
+                self.metadata_filter
+                .filter_results(
+                    results,
+                    analysis
+                )
+            )
+
+        # =================================================
+        # 9. TOPIC BASED LIMIT
+        # =================================================
+
+        topic_k = {
+
+            "Fees": 8,
+
+            "Eligibility": 5,
+
+            "Admission": 6,
+
+            "Placement": 10,
+
+            "Academic Calendar": 8,
+        }
+
+        final_k = topic_k.get(
+            topic,
+            5
+        )
+
+        filtered = filtered[
+            :final_k
+        ]
+
+        # =================================================
+        # 10. FINAL DOCUMENT DEBUG
+        # =================================================
+
+        print(
+            "\n========== FINAL RETRIEVED DOCUMENTS =========="
+        )
+
+        print(
+            "Final documents:",
+            len(filtered)
+        )
+
+        for i, doc in enumerate(
+            filtered,
+            start=1
+        ):
+
+            metadata = doc.metadata
+
+            print(
+                f"\n--- FINAL DOCUMENT {i} ---"
+            )
+
+            print(
+                "FILE:",
+                metadata.get(
+                    "filename"
+                )
+            )
+
+            print(
+                "COURSE:",
+                metadata.get(
+                    "course"
+                )
+            )
+
+            print(
+                "COURSES:",
+                metadata.get(
+                    "courses"
+                )
+            )
+
+            print(
+                "CALENDAR GROUP:",
+                metadata.get(
+                    "calendar_group"
+                )
+            )
+
+            print(
+                "TOPIC:",
+                metadata.get(
+                    "topic"
+                )
+            )
+
+            print(
+                "YEAR:",
+                metadata.get(
+                    "year"
+                )
+            )
+
+            print(
+                "DOCUMENT TYPE:",
+                metadata.get(
+                    "document_type"
+                )
+            )
+
+            print(
+                "SECTION:",
+                metadata.get(
+                    "section"
+                )
+            )
+
+            print(
+                "CHUNK:",
+                metadata.get(
+                    "chunk_id"
+                )
+            )
+
+            print(
+                "TEXT:"
+            )
+
+            print(
+                doc.page_content[:1000]
+            )
+
+        # =================================================
+        # 11. BUILD CONTEXT
+        # =================================================
+
+        context = (
+            self.context_builder
+            .build_context(
+                filtered
+            )
+        )
+
+        print(
+            "\n========== FINAL CONTEXT =========="
+        )
+
+        print(
+            context
+        )
+
+        # =================================================
+        # 12. RETURN
+        # =================================================
 
         return {
+
             "analysis": analysis,
+
             "documents": filtered,
+
             "context": context
-        }
+        }   
