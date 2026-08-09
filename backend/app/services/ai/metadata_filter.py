@@ -157,6 +157,40 @@ class MetadataFilter:
         )
 
     # =========================================================
+    # TOPIC MATCHING
+    # =========================================================
+
+    def topic_matches(self, doc, query_topic):
+        """Match metadata topics and eligibility sections in admission PDFs."""
+
+        query_topic = self.normalize_topic(query_topic)
+        document_topic = self.normalize_topic(
+            doc.metadata.get("topic")
+        )
+
+        if document_topic == query_topic:
+            return True
+
+        # Eligibility criteria is commonly embedded within an admission
+        # brochure, which remains tagged as Admission at the file level.
+        if (
+            query_topic == "Eligibility"
+            and document_topic == "Admission"
+        ):
+            text = (
+                f"{doc.page_content} "
+                f"{doc.metadata.get('section', '')}"
+            ).lower()
+
+            return (
+                "eligibility criteria" in text
+                or "eligibility" in text
+                or "eligible" in text
+            )
+
+        return False
+
+    # =========================================================
     # ACADEMIC CALENDAR CONTENT MATCH
     # =========================================================
 
@@ -280,6 +314,12 @@ class MetadataFilter:
             metadata.get("course")
         )
 
+        # Older indexed chunks predate the explicit `course` metadata. Their
+        # course directory is still preserved as `category`.
+        category_course = self.normalize_course(
+            metadata.get("category")
+        )
+
         # =====================================================
         # MULTIPLE COURSES
         # =====================================================
@@ -311,6 +351,10 @@ class MetadataFilter:
 
             if doc_course == query_course:
                 return True
+
+        # Use category only for legacy chunks with no section-level course.
+        if not doc_course and category_course == query_course:
+            return True
 
         # =====================================================
         # MULTIPLE COURSE MATCH
@@ -537,11 +581,12 @@ class MetadataFilter:
             # TOPIC FILTER
             # =================================================
 
-            if query_topic:
+            if query_topic and not self.topic_matches(
+                doc,
+                query_topic
+            ):
 
-                if doc_topic != query_topic:
-
-                    continue
+                continue
 
             # =================================================
             # YEAR FILTER

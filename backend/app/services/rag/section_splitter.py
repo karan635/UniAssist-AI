@@ -8,6 +8,8 @@ class SectionSplitter:
     COURSE_PATTERNS = {
         "B.TECH": [
             r"\bB\.?\s*Tech\b",
+            r"\bBTech\b",
+            r"\bBachelor\s+of\s+Technology\b",
         ],
         "MCA": [
             r"\bMaster of Computer Application\b",
@@ -64,6 +66,8 @@ class SectionSplitter:
         checks = {
             "B.TECH": [
                 r"\bB\.?\s*TECH\b",
+                r"\bBTECH\b",
+                r"\bBACHELOR\s+OF\s+TECHNOLOGY\b",
             ],
             "MCA": [
                 r"\bMASTER OF COMPUTER APPLICATION\b",
@@ -485,7 +489,53 @@ class SectionSplitter:
         document: Document
     ):
 
-        text = document.page_content
+        text = document.page_content.strip()
+
+        if not text:
+            return []
+
+        # ---------------------------------------------------------
+        # Detect the course scope from the COMPLETE source document.
+        #
+        # This is important for multi-page PDFs such as Fees.pdf:
+        # a later section may not repeat the course name, while the
+        # source document clearly contains the course heading/table.
+        # ---------------------------------------------------------
+
+        document_courses = self.detect_courses(text)
+
+        base_metadata = document.metadata.copy()
+
+        if document_courses:
+
+            base_metadata["courses"] = list(
+                document_courses
+            )
+
+            if len(document_courses) == 1:
+
+                base_metadata["course"] = (
+                    document_courses[0]
+                )
+
+            else:
+
+                # Multiple courses are covered by the source.
+                # Do NOT keep a stale loader value such as MCA.
+                base_metadata["course"] = None
+
+        # ---------------------------------------------------------
+        # Detect year once from the complete source.
+        # ---------------------------------------------------------
+
+        document_year = self.detect_year(text)
+
+        if document_year:
+            base_metadata["year"] = document_year
+
+        # ---------------------------------------------------------
+        # Section headings
+        # ---------------------------------------------------------
 
         pattern = re.compile(
             r"^(?:"
@@ -493,6 +543,7 @@ class SectionSplitter:
             r"Master of Business Administration|"
             r"Bachelor of Computer Application|"
             r"Bachelor of Business Administration|"
+            r"Bachelor of Technology|"
             r"Bachelor of Architecture|"
             r"Bachelor of Pharmacy|"
             r"Master of Pharmacy|"
@@ -509,7 +560,8 @@ class SectionSplitter:
             r"MCA|"
             r"MBA|"
             r"BCA|"
-            r"BBA"
+            r"BBA|"
+            r"BTech"
             r")[^\n]{0,120}$",
             re.MULTILINE | re.IGNORECASE
         )
@@ -518,24 +570,17 @@ class SectionSplitter:
             pattern.finditer(text)
         )
 
+        # ---------------------------------------------------------
+        # No course heading detected:
+        # preserve the document-level metadata.
+        # ---------------------------------------------------------
+
         if not matches:
-
-            metadata = document.metadata.copy()
-
-            course = self.detect_course(text)
-
-            if course:
-                metadata["course"] = course
-
-            year = self.detect_year(text)
-
-            if year:
-                metadata["year"] = year
 
             return [
                 Document(
                     page_content=text,
-                    metadata=metadata
+                    metadata=base_metadata
                 )
             ]
 
@@ -564,34 +609,44 @@ class SectionSplitter:
 
             heading = match.group().strip()
 
-            metadata = document.metadata.copy()
+            metadata = base_metadata.copy()
 
-            all_courses = self.detect_courses(
+            # -----------------------------------------------------
+            # First preference: explicit course(s) in this section.
+            # -----------------------------------------------------
+
+            section_courses = self.detect_courses(
                 body
             )
 
-            if len(all_courses) == 1:
+            if len(section_courses) == 1:
 
                 metadata["course"] = (
-                    all_courses[0]
+                    section_courses[0]
                 )
 
-            else:
+                metadata["courses"] = list(
+                    section_courses
+                )
+
+            elif len(section_courses) > 1:
 
                 metadata["course"] = None
 
-                if all_courses:
+                metadata["courses"] = list(
+                    section_courses
+                )
 
-                    metadata["courses"] = (
-                        all_courses
-                    )
-
-            year = self.detect_year(
-                body
-            )
-
-            if year:
-                metadata["year"] = year
+            # -----------------------------------------------------
+            # If the section itself does not mention a course,
+            # KEEP the complete source-document course scope.
+            #
+            # This prevents:
+            #
+            #     Fees section -> course=MCA
+            #
+            # merely because the loader had MCA as category.
+            # -----------------------------------------------------
 
             metadata["section"] = heading
 

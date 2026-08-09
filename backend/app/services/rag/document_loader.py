@@ -29,6 +29,22 @@ class DocumentLoader:
     def __init__(self):
         self.document_path = Path(settings.DOCUMENT_PATH)
 
+    # Course brochures are organized by course directory. Individual pages
+    # do not always repeat the course name, so retain this source metadata.
+    COURSE_DIRECTORIES = {
+        "BTECH": "B.TECH",
+        "B.TECH": "B.TECH",
+        "MCA": "MCA",
+        "BCA": "BCA",
+        "BBA": "BBA",
+        "MBA": "MBA",
+        "MTECH": "M.TECH",
+        "M.TECH": "M.TECH",
+    }
+
+    def _course_from_category(self, category: str):
+        return self.COURSE_DIRECTORIES.get(category.upper().strip())
+
     # ---------------------------------------------------------
     # OCR
     # ---------------------------------------------------------
@@ -125,6 +141,11 @@ class DocumentLoader:
                     "page_label": str(page_number + 1),
                     "category": category,
                 }
+
+                course = self._course_from_category(category)
+
+                if course:
+                    metadata["course"] = course
 
                 # -----------------------------------------
                 # Detect document type

@@ -37,6 +37,212 @@ class RetrieverService:
 
         self.context_builder = ContextBuilder()
 
+
+    # =================================================
+    # EXPAND RELATED CHUNKS
+    # =================================================
+
+    def _expand_related_chunks(
+        self,
+        documents,
+        all_documents,
+        max_following: int = 2,
+    ):
+        """
+        Include continuation chunks from the same logical
+        document/section.
+
+        Eligibility criteria can continue into the next chunk.
+        We therefore match by source + chunk-id family rather
+        than relying only on the global chunk_number.
+        """
+
+        if not documents:
+            return documents
+
+        expanded = list(documents)
+
+        for document in list(documents):
+
+            metadata = document.metadata
+
+            source = metadata.get("filename")
+            course = metadata.get("course")
+            current_chunk_id = str(
+                metadata.get("chunk_id", "")
+            )
+
+            current_chunk_number = metadata.get(
+                "chunk_number"
+            )
+
+            # -------------------------------------------------
+            # Determine the logical chunk family.
+            #
+            # Example:
+            # MCA_Admission__13
+            # MCA_Admission__14
+            #
+            # Both belong to the same MCA Admission sequence.
+            # -------------------------------------------------
+
+            chunk_prefix = None
+
+            if "__" in current_chunk_id:
+                chunk_prefix = current_chunk_id.rsplit(
+                    "__",
+                    1
+                )[0]
+
+            try:
+                current_number = int(
+                    current_chunk_number
+                )
+            except (TypeError, ValueError):
+                current_number = None
+
+            candidates = []
+
+            for candidate in all_documents:
+
+                if candidate is document:
+                    continue
+
+                candidate_metadata = candidate.metadata
+
+                # -------------------------------------------------
+                # Same source PDF
+                # -------------------------------------------------
+
+                if (
+                    source
+                    and candidate_metadata.get("filename")
+                    != source
+                ):
+                    continue
+
+                candidate_chunk_id = str(
+                    candidate_metadata.get(
+                        "chunk_id",
+                        ""
+                    )
+                )
+
+                # -------------------------------------------------
+                # Prefer the same chunk-id family.
+                # -------------------------------------------------
+
+                if chunk_prefix:
+
+                    if not candidate_chunk_id.startswith(
+                        chunk_prefix + "__"
+                    ):
+                        continue
+
+                else:
+
+                    # Fallback when chunk_id is unavailable.
+                    candidate_course = (
+                        candidate_metadata.get("course")
+                    )
+
+                    if (
+                        course
+                        and candidate_course
+                        and candidate_course != course
+                    ):
+                        continue
+
+                candidate_number = (
+                    candidate_metadata.get(
+                        "chunk_number"
+                    )
+                )
+
+                try:
+                    candidate_number = int(
+                        candidate_number
+                    )
+                except (TypeError, ValueError):
+                    continue
+
+                # Only following chunks.
+                if (
+                    current_number is not None
+                    and candidate_number <= current_number
+                ):
+                    continue
+
+                candidates.append(
+                    candidate
+                )
+
+            # -------------------------------------------------
+            # Sort continuation chunks.
+            # -------------------------------------------------
+
+            candidates.sort(
+                key=lambda doc: int(
+                    doc.metadata.get(
+                        "chunk_number",
+                        999999
+                    )
+                )
+            )
+
+            print(
+                "\n========== CHUNK EXPANSION DEBUG =========="
+            )
+
+            print(
+                "Current chunk:",
+                current_chunk_id
+            )
+
+            print(
+                "Source:",
+                source
+            )
+
+            print(
+                "Course:",
+                course
+            )
+
+            print(
+                "Continuation candidates:",
+                [
+                    (
+                        doc.metadata.get("chunk_id"),
+                        doc.metadata.get("chunk_number")
+                    )
+                    for doc in candidates
+                ]
+            )
+
+            # -------------------------------------------------
+            # Add only the next N chunks.
+            # -------------------------------------------------
+
+            for candidate in candidates[
+                :max_following
+            ]:
+
+                if candidate not in expanded:
+
+                    expanded.append(
+                        candidate
+                    )
+
+                    print(
+                        "[CHUNK EXPANSION] Added:",
+                        candidate.metadata.get(
+                            "chunk_id"
+                        )
+                    )
+
+        return expanded
+
     # =====================================================
     # SEARCH
     # =====================================================
@@ -360,7 +566,10 @@ class RetrieverService:
                 # TOPIC
                 # -----------------------------------------
 
-                if doc_topic != topic:
+                if not self.metadata_filter.topic_matches(
+                    doc,
+                    topic
+                ):
 
                     continue
 
@@ -411,6 +620,24 @@ class RetrieverService:
                 f"{topic} candidates:",
                 len(filtered)
             )
+
+            # -------------------------------------------------
+            # Eligibility can span multiple chunks.
+            # Include following chunks from the same source/course.
+            # -------------------------------------------------
+
+            if topic == "Eligibility" and filtered:
+
+                filtered = self._expand_related_chunks(
+                    filtered,
+                    all_documents,
+                    max_following=2,
+                )
+
+                print(
+                    "Eligibility candidates after chunk expansion:",
+                    len(filtered)
+                )
 
         # =================================================
         # 8. FALLBACK TO FAISS
@@ -665,4 +892,4 @@ class RetrieverService:
             "documents": filtered,
 
             "context": context
-        }   
+        }
