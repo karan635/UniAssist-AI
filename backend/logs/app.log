@@ -1,0 +1,19 @@
+2026-08-10 19:32:46.730 | INFO     | app.services.rag.document_loader:load_documents:298 - 
+========== DOCUMENT LOADING ==========
+2026-08-10 19:32:46.767 | INFO     | app.services.rag.document_loader:_load_pdf:119 - [PDF] Loading: AcademicCalendar MO-2026.pdf
+2026-08-10 19:32:46.773 | INFO     | app.services.rag.document_loader:_load_pdf:137 - [OCR] Using OCR for AcademicCalendar MO-2026.pdf - Page 1
+2026-08-10 19:32:51.600 | INFO     | app.services.rag.document_loader:_load_pdf:137 - [OCR] Using OCR for AcademicCalendar MO-2026.pdf - Page 2
+2026-08-10 19:32:53.757 | INFO     | app.services.rag.document_loader:_load_pdf:137 - [OCR] Using OCR for AcademicCalendar MO-2026.pdf - Page 3
+2026-08-10 19:32:56.069 | INFO     | app.services.rag.document_loader:_load_pdf:258 - [SUCCESS] AcademicCalendar MO-2026.pdf -> 3 document(s)
+2026-08-10 19:32:56.097 | INFO     | app.services.rag.document_loader:_load_pdf:119 - [PDF] Loading: Admission.pdf
+2026-08-10 19:32:56.113 | INFO     | app.services.rag.document_loader:_load_pdf:258 - [SUCCESS] Admission.pdf -> 5 document(s)
+2026-08-10 19:32:56.140 | INFO     | app.services.rag.document_loader:_load_pdf:119 - [PDF] Loading: Fees.pdf
+2026-08-10 19:32:56.228 | INFO     | app.services.rag.document_loader:_load_pdf:258 - [SUCCESS] Fees.pdf -> 11 document(s)
+2026-08-10 19:32:56.239 | INFO     | app.services.rag.document_loader:_load_pdf:119 - [PDF] Loading: Placement_2024.pdf
+2026-08-10 19:32:56.247 | INFO     | app.services.rag.document_loader:_load_pdf:258 - [SUCCESS] Placement_2024.pdf -> 1 document(s)
+2026-08-10 19:32:56.263 | INFO     | app.services.rag.document_loader:_load_pdf:119 - [PDF] Loading: Placement_2025.pdf
+2026-08-10 19:32:56.263 | INFO     | app.services.rag.document_loader:_load_pdf:258 - [SUCCESS] Placement_2025.pdf -> 1 document(s)
+2026-08-10 19:32:56.278 | INFO     | app.services.rag.document_loader:_load_pdf:119 - [PDF] Loading: Placement_2026.pdf
+2026-08-10 19:32:56.285 | INFO     | app.services.rag.document_loader:_load_pdf:258 - [SUCCESS] Placement_2026.pdf -> 1 document(s)
+2026-08-10 19:32:56.285 | INFO     | app.services.rag.document_loader:load_documents:308 - 
+[TOTAL] Documents/pages loaded: 22
