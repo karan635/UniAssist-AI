@@ -217,6 +217,25 @@ class DocumentLoader:
 
                 if topic:
                     metadata["topic"] = topic
+                else:
+                    # No filename keyword matched at all (typo, unusual
+                    # naming, or a genuinely uncategorized document). This
+                    # document will still be indexed, but it won't be
+                    # reachable through any topic-specific retrieval
+                    # branch (Fees/Eligibility/Admission/Placement) -- it
+                    # only falls back to generic similarity search.
+                    # Surfacing this now, at ingestion time, is much
+                    # cheaper than discovering it later as an empty
+                    # "no relevant documents found" chat response.
+                    logger.warning(
+                        f"[UNCLASSIFIED] {pdf.name} did not match any "
+                        f"topic keyword (placement/fee/admission/academic "
+                        f"calendar) in its filename -- indexed as "
+                        f"document_type='general' with no topic. If this "
+                        f"file should belong to a specific topic, check "
+                        f"the filename for typos or rename it to include "
+                        f"the expected keyword."
+                    )
 
                 # -----------------------------------------
                 # Academic calendar metadata
