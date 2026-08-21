@@ -17,3 +17,120 @@
 2026-08-10 19:32:56.285 | INFO     | app.services.rag.document_loader:_load_pdf:258 - [SUCCESS] Placement_2026.pdf -> 1 document(s)
 2026-08-10 19:32:56.285 | INFO     | app.services.rag.document_loader:load_documents:308 - 
 [TOTAL] Documents/pages loaded: 22
+2026-08-21 14:51:18.887 | ERROR    | app.services.ai.groq_client:generate:37 - [GROQ] Generation failed: Error code: 404 - {'error': {'message': 'The model `llama-3.3-70b-versatile` does not exist or you do not have access to it.', 'type': 'invalid_request_error', 'code': 'model_not_found'}}
+2026-08-21 15:39:16.935 | INFO     | app.services.rag.document_loader:load_documents:298 - 
+========== DOCUMENT LOADING ==========
+2026-08-21 15:39:17.001 | INFO     | app.services.rag.document_loader:_load_pdf:119 - [PDF] Loading: AcademicCalendar MO-2026.pdf
+2026-08-21 15:39:17.022 | INFO     | app.services.rag.document_loader:_load_pdf:137 - [OCR] Using OCR for AcademicCalendar MO-2026.pdf - Page 1
+2026-08-21 15:39:21.559 | INFO     | app.services.rag.document_loader:_load_pdf:137 - [OCR] Using OCR for AcademicCalendar MO-2026.pdf - Page 2
+2026-08-21 15:39:23.580 | INFO     | app.services.rag.document_loader:_load_pdf:137 - [OCR] Using OCR for AcademicCalendar MO-2026.pdf - Page 3
+2026-08-21 15:39:26.110 | INFO     | app.services.rag.document_loader:_load_pdf:258 - [SUCCESS] AcademicCalendar MO-2026.pdf -> 3 document(s)
+2026-08-21 15:39:26.136 | INFO     | app.services.rag.document_loader:_load_pdf:119 - [PDF] Loading: Addmission MCA.pdf
+2026-08-21 15:39:26.163 | INFO     | app.services.rag.document_loader:_load_pdf:258 - [SUCCESS] Addmission MCA.pdf -> 3 document(s)
+2026-08-21 15:39:26.190 | INFO     | app.services.rag.document_loader:_load_pdf:119 - [PDF] Loading: Fees.pdf
+2026-08-21 15:39:26.293 | INFO     | app.services.rag.document_loader:_load_pdf:258 - [SUCCESS] Fees.pdf -> 11 document(s)
+2026-08-21 15:39:26.303 | INFO     | app.services.rag.document_loader:_load_pdf:119 - [PDF] Loading: Placement_2024.pdf
+2026-08-21 15:39:26.314 | INFO     | app.services.rag.document_loader:_load_pdf:258 - [SUCCESS] Placement_2024.pdf -> 1 document(s)
+2026-08-21 15:39:26.327 | INFO     | app.services.rag.document_loader:_load_pdf:119 - [PDF] Loading: Placement_2025.pdf
+2026-08-21 15:39:26.332 | INFO     | app.services.rag.document_loader:_load_pdf:258 - [SUCCESS] Placement_2025.pdf -> 1 document(s)
+2026-08-21 15:39:26.334 | INFO     | app.services.rag.document_loader:_load_pdf:119 - [PDF] Loading: Placement_2026.pdf
+2026-08-21 15:39:26.346 | INFO     | app.services.rag.document_loader:_load_pdf:258 - [SUCCESS] Placement_2026.pdf -> 1 document(s)
+2026-08-21 15:39:26.346 | INFO     | app.services.rag.document_loader:load_documents:308 - 
+[TOTAL] Documents/pages loaded: 20
+2026-08-21 15:48:42.998 | INFO     | app.services.rag.document_loader:load_documents:298 - 
+========== DOCUMENT LOADING ==========
+2026-08-21 15:48:43.001 | INFO     | app.services.rag.document_loader:_load_pdf:119 - [PDF] Loading: AcademicCalendar MO-2026.pdf
+2026-08-21 15:48:43.001 | INFO     | app.services.rag.document_loader:_load_pdf:137 - [OCR] Using OCR for AcademicCalendar MO-2026.pdf - Page 1
+2026-08-21 15:48:45.630 | INFO     | app.services.rag.document_loader:_load_pdf:137 - [OCR] Using OCR for AcademicCalendar MO-2026.pdf - Page 2
+2026-08-21 15:48:47.654 | INFO     | app.services.rag.document_loader:_load_pdf:137 - [OCR] Using OCR for AcademicCalendar MO-2026.pdf - Page 3
+2026-08-21 15:48:50.328 | INFO     | app.services.rag.document_loader:_load_pdf:258 - [SUCCESS] AcademicCalendar MO-2026.pdf -> 3 document(s)
+2026-08-21 15:48:50.328 | INFO     | app.services.rag.document_loader:_load_pdf:119 - [PDF] Loading: Addmission MCA.pdf
+2026-08-21 15:48:50.336 | INFO     | app.services.rag.document_loader:_load_pdf:258 - [SUCCESS] Addmission MCA.pdf -> 3 document(s)
+2026-08-21 15:48:50.339 | INFO     | app.services.rag.document_loader:_load_pdf:119 - [PDF] Loading: Fees.pdf
+2026-08-21 15:48:50.415 | INFO     | app.services.rag.document_loader:_load_pdf:258 - [SUCCESS] Fees.pdf -> 11 document(s)
+2026-08-21 15:48:50.416 | INFO     | app.services.rag.document_loader:_load_pdf:119 - [PDF] Loading: Placement_2024.pdf
+2026-08-21 15:48:50.420 | INFO     | app.services.rag.document_loader:_load_pdf:258 - [SUCCESS] Placement_2024.pdf -> 1 document(s)
+2026-08-21 15:48:50.420 | INFO     | app.services.rag.document_loader:_load_pdf:119 - [PDF] Loading: Placement_2025.pdf
+2026-08-21 15:48:50.423 | INFO     | app.services.rag.document_loader:_load_pdf:258 - [SUCCESS] Placement_2025.pdf -> 1 document(s)
+2026-08-21 15:48:50.424 | INFO     | app.services.rag.document_loader:_load_pdf:119 - [PDF] Loading: Placement_2026.pdf
+2026-08-21 15:48:50.426 | INFO     | app.services.rag.document_loader:_load_pdf:258 - [SUCCESS] Placement_2026.pdf -> 1 document(s)
+2026-08-21 15:48:50.426 | INFO     | app.services.rag.document_loader:load_documents:308 - 
+[TOTAL] Documents/pages loaded: 20
+2026-08-21 15:48:50.429 | INFO     | app.services.rag.text_splitter:split_documents:38 - Created 67 chunks.
+2026-08-21 15:55:27.272 | INFO     | app.services.rag.document_loader:load_documents:298 - 
+========== DOCUMENT LOADING ==========
+2026-08-21 15:55:27.281 | INFO     | app.services.rag.document_loader:_load_pdf:119 - [PDF] Loading: AcademicCalendar MO-2026.pdf
+2026-08-21 15:55:27.288 | INFO     | app.services.rag.document_loader:_load_pdf:137 - [OCR] Using OCR for AcademicCalendar MO-2026.pdf - Page 1
+2026-08-21 15:55:29.496 | INFO     | app.services.rag.document_loader:_load_pdf:137 - [OCR] Using OCR for AcademicCalendar MO-2026.pdf - Page 2
+2026-08-21 15:55:31.700 | INFO     | app.services.rag.document_loader:_load_pdf:137 - [OCR] Using OCR for AcademicCalendar MO-2026.pdf - Page 3
+2026-08-21 15:55:34.613 | INFO     | app.services.rag.document_loader:_load_pdf:258 - [SUCCESS] AcademicCalendar MO-2026.pdf -> 3 document(s)
+2026-08-21 15:55:34.613 | INFO     | app.services.rag.document_loader:_load_pdf:119 - [PDF] Loading: Addmission_MCA.pdf
+2026-08-21 15:55:34.632 | INFO     | app.services.rag.document_loader:_load_pdf:258 - [SUCCESS] Addmission_MCA.pdf -> 3 document(s)
+2026-08-21 15:55:34.635 | INFO     | app.services.rag.document_loader:_load_pdf:119 - [PDF] Loading: Fees.pdf
+2026-08-21 15:55:34.711 | INFO     | app.services.rag.document_loader:_load_pdf:258 - [SUCCESS] Fees.pdf -> 11 document(s)
+2026-08-21 15:55:34.711 | INFO     | app.services.rag.document_loader:_load_pdf:119 - [PDF] Loading: Placement_2024.pdf
+2026-08-21 15:55:34.711 | INFO     | app.services.rag.document_loader:_load_pdf:258 - [SUCCESS] Placement_2024.pdf -> 1 document(s)
+2026-08-21 15:55:34.711 | INFO     | app.services.rag.document_loader:_load_pdf:119 - [PDF] Loading: Placement_2025.pdf
+2026-08-21 15:55:34.719 | INFO     | app.services.rag.document_loader:_load_pdf:258 - [SUCCESS] Placement_2025.pdf -> 1 document(s)
+2026-08-21 15:55:34.720 | INFO     | app.services.rag.document_loader:_load_pdf:119 - [PDF] Loading: Placement_2026.pdf
+2026-08-21 15:55:34.722 | INFO     | app.services.rag.document_loader:_load_pdf:258 - [SUCCESS] Placement_2026.pdf -> 1 document(s)
+2026-08-21 15:55:34.722 | INFO     | app.services.rag.document_loader:load_documents:308 - 
+[TOTAL] Documents/pages loaded: 20
+2026-08-21 15:57:12.758 | INFO     | app.services.rag.document_loader:load_documents:298 - 
+========== DOCUMENT LOADING ==========
+2026-08-21 15:57:12.758 | INFO     | app.services.rag.document_loader:_load_pdf:119 - [PDF] Loading: AcademicCalendar MO-2026.pdf
+2026-08-21 15:57:12.758 | INFO     | app.services.rag.document_loader:_load_pdf:137 - [OCR] Using OCR for AcademicCalendar MO-2026.pdf - Page 1
+2026-08-21 15:57:15.253 | INFO     | app.services.rag.document_loader:_load_pdf:137 - [OCR] Using OCR for AcademicCalendar MO-2026.pdf - Page 2
+2026-08-21 15:57:17.780 | INFO     | app.services.rag.document_loader:_load_pdf:137 - [OCR] Using OCR for AcademicCalendar MO-2026.pdf - Page 3
+2026-08-21 15:57:20.819 | INFO     | app.services.rag.document_loader:_load_pdf:258 - [SUCCESS] AcademicCalendar MO-2026.pdf -> 3 document(s)
+2026-08-21 15:57:20.819 | INFO     | app.services.rag.document_loader:_load_pdf:119 - [PDF] Loading: Addmission_MCA.pdf
+2026-08-21 15:57:20.833 | INFO     | app.services.rag.document_loader:_load_pdf:258 - [SUCCESS] Addmission_MCA.pdf -> 3 document(s)
+2026-08-21 15:57:20.835 | INFO     | app.services.rag.document_loader:_load_pdf:119 - [PDF] Loading: Fees.pdf
+2026-08-21 15:57:20.903 | INFO     | app.services.rag.document_loader:_load_pdf:258 - [SUCCESS] Fees.pdf -> 11 document(s)
+2026-08-21 15:57:20.904 | INFO     | app.services.rag.document_loader:_load_pdf:119 - [PDF] Loading: Placement_2024.pdf
+2026-08-21 15:57:20.908 | INFO     | app.services.rag.document_loader:_load_pdf:258 - [SUCCESS] Placement_2024.pdf -> 1 document(s)
+2026-08-21 15:57:20.909 | INFO     | app.services.rag.document_loader:_load_pdf:119 - [PDF] Loading: Placement_2025.pdf
+2026-08-21 15:57:20.913 | INFO     | app.services.rag.document_loader:_load_pdf:258 - [SUCCESS] Placement_2025.pdf -> 1 document(s)
+2026-08-21 15:57:20.915 | INFO     | app.services.rag.document_loader:_load_pdf:119 - [PDF] Loading: Placement_2026.pdf
+2026-08-21 15:57:20.919 | INFO     | app.services.rag.document_loader:_load_pdf:258 - [SUCCESS] Placement_2026.pdf -> 1 document(s)
+2026-08-21 15:57:20.920 | INFO     | app.services.rag.document_loader:load_documents:308 - 
+[TOTAL] Documents/pages loaded: 20
+2026-08-21 15:57:41.289 | INFO     | app.services.rag.document_loader:load_documents:298 - 
+========== DOCUMENT LOADING ==========
+2026-08-21 15:57:41.294 | INFO     | app.services.rag.document_loader:_load_pdf:119 - [PDF] Loading: AcademicCalendar MO-2026.pdf
+2026-08-21 15:57:41.302 | INFO     | app.services.rag.document_loader:_load_pdf:137 - [OCR] Using OCR for AcademicCalendar MO-2026.pdf - Page 1
+2026-08-21 15:57:43.630 | INFO     | app.services.rag.document_loader:_load_pdf:137 - [OCR] Using OCR for AcademicCalendar MO-2026.pdf - Page 2
+2026-08-21 15:57:46.159 | INFO     | app.services.rag.document_loader:_load_pdf:137 - [OCR] Using OCR for AcademicCalendar MO-2026.pdf - Page 3
+2026-08-21 15:57:48.547 | INFO     | app.services.rag.document_loader:_load_pdf:258 - [SUCCESS] AcademicCalendar MO-2026.pdf -> 3 document(s)
+2026-08-21 15:57:48.547 | INFO     | app.services.rag.document_loader:_load_pdf:119 - [PDF] Loading: Addmission_MCA.pdf
+2026-08-21 15:57:48.557 | INFO     | app.services.rag.document_loader:_load_pdf:258 - [SUCCESS] Addmission_MCA.pdf -> 3 document(s)
+2026-08-21 15:57:48.559 | INFO     | app.services.rag.document_loader:_load_pdf:119 - [PDF] Loading: Fees.pdf
+2026-08-21 15:57:48.617 | INFO     | app.services.rag.document_loader:_load_pdf:258 - [SUCCESS] Fees.pdf -> 11 document(s)
+2026-08-21 15:57:48.617 | INFO     | app.services.rag.document_loader:_load_pdf:119 - [PDF] Loading: Placement_2024.pdf
+2026-08-21 15:57:48.621 | INFO     | app.services.rag.document_loader:_load_pdf:258 - [SUCCESS] Placement_2024.pdf -> 1 document(s)
+2026-08-21 15:57:48.622 | INFO     | app.services.rag.document_loader:_load_pdf:119 - [PDF] Loading: Placement_2025.pdf
+2026-08-21 15:57:48.627 | INFO     | app.services.rag.document_loader:_load_pdf:258 - [SUCCESS] Placement_2025.pdf -> 1 document(s)
+2026-08-21 15:57:48.628 | INFO     | app.services.rag.document_loader:_load_pdf:119 - [PDF] Loading: Placement_2026.pdf
+2026-08-21 15:57:48.630 | INFO     | app.services.rag.document_loader:_load_pdf:258 - [SUCCESS] Placement_2026.pdf -> 1 document(s)
+2026-08-21 15:57:48.630 | INFO     | app.services.rag.document_loader:load_documents:308 - 
+[TOTAL] Documents/pages loaded: 20
+2026-08-21 15:57:48.630 | INFO     | app.services.rag.text_splitter:split_documents:38 - Created 67 chunks.
+2026-08-21 16:04:55.625 | INFO     | app.services.rag.document_loader:load_documents:298 - 
+========== DOCUMENT LOADING ==========
+2026-08-21 16:04:55.629 | INFO     | app.services.rag.document_loader:_load_pdf:119 - [PDF] Loading: AcademicCalendar MO-2026.pdf
+2026-08-21 16:04:55.635 | INFO     | app.services.rag.document_loader:_load_pdf:137 - [OCR] Using OCR for AcademicCalendar MO-2026.pdf - Page 1
+2026-08-21 16:04:57.950 | INFO     | app.services.rag.document_loader:_load_pdf:137 - [OCR] Using OCR for AcademicCalendar MO-2026.pdf - Page 2
+2026-08-21 16:05:00.231 | INFO     | app.services.rag.document_loader:_load_pdf:137 - [OCR] Using OCR for AcademicCalendar MO-2026.pdf - Page 3
+2026-08-21 16:05:02.651 | INFO     | app.services.rag.document_loader:_load_pdf:258 - [SUCCESS] AcademicCalendar MO-2026.pdf -> 3 document(s)
+2026-08-21 16:05:02.651 | INFO     | app.services.rag.document_loader:_load_pdf:119 - [PDF] Loading: Admission_MCA.pdf
+2026-08-21 16:05:02.662 | INFO     | app.services.rag.document_loader:_load_pdf:258 - [SUCCESS] Admission_MCA.pdf -> 3 document(s)
+2026-08-21 16:05:02.667 | INFO     | app.services.rag.document_loader:_load_pdf:119 - [PDF] Loading: Fees.pdf
+2026-08-21 16:05:02.753 | INFO     | app.services.rag.document_loader:_load_pdf:258 - [SUCCESS] Fees.pdf -> 11 document(s)
+2026-08-21 16:05:02.753 | INFO     | app.services.rag.document_loader:_load_pdf:119 - [PDF] Loading: Placement_2024.pdf
+2026-08-21 16:05:02.753 | INFO     | app.services.rag.document_loader:_load_pdf:258 - [SUCCESS] Placement_2024.pdf -> 1 document(s)
+2026-08-21 16:05:02.753 | INFO     | app.services.rag.document_loader:_load_pdf:119 - [PDF] Loading: Placement_2025.pdf
+2026-08-21 16:05:02.767 | INFO     | app.services.rag.document_loader:_load_pdf:258 - [SUCCESS] Placement_2025.pdf -> 1 document(s)
+2026-08-21 16:05:02.769 | INFO     | app.services.rag.document_loader:_load_pdf:119 - [PDF] Loading: Placement_2026.pdf
+2026-08-21 16:05:02.771 | INFO     | app.services.rag.document_loader:_load_pdf:258 - [SUCCESS] Placement_2026.pdf -> 1 document(s)
+2026-08-21 16:05:02.771 | INFO     | app.services.rag.document_loader:load_documents:308 - 
+[TOTAL] Documents/pages loaded: 20
