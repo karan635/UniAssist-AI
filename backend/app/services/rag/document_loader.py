@@ -9,6 +9,7 @@ import re
 import shutil
 
 import fitz  # PyMuPDF
+import pdfplumber
 import pytesseract
 
 from PIL import Image
@@ -48,6 +49,9 @@ class DocumentLoader:
     Supports:
     1. Normal text-based PDFs
     2. Scanned/image-based PDFs using OCR
+    3. Placement PDFs -- table cells are matched to their real column
+       header via pdfplumber's table-grid extraction, instead of a
+       flattened-text positional guess (see _extract_placement_table_text).
     """
 
     def __init__(self):
@@ -105,6 +109,84 @@ class DocumentLoader:
             return ""
 
     # ---------------------------------------------------------
+    # PLACEMENT TABLE EXTRACTION (table-grid based, not positional)
+    # ---------------------------------------------------------
+
+    def _extract_placement_table_text(self, plumber_page) -> str:
+        """
+        Build a clean, explicitly-labeled text block from a placement
+        page's table(s) using pdfplumber's table-grid extraction.
+
+        Why this replaces positional parsing: pdfplumber reads the
+        PDF's actual table grid (rows/columns as drawn), so each value
+        is matched directly to its real column header (e.g. "B.Tech
+        (Computer Science)") and row label (e.g. "TOTAL OFFERS") --
+        there's no guessing based on "the Nth number found near some
+        phrase," which breaks the moment a stray digit (a page number,
+        a schedule round number, etc.) appears nearby in the flattened
+        text, or the PDF's internal text order doesn't match its
+        visual layout.
+        """
+
+        try:
+            tables = plumber_page.extract_tables()
+        except Exception as e:
+            logger.error(f"[PLACEMENT TABLE] extract_tables failed: {e}")
+            return ""
+
+        if not tables:
+            return ""
+
+        lines = []
+
+        for table in tables:
+
+            if not table or len(table) < 2:
+                continue
+
+            header_row = [
+                (cell or "").strip()
+                for cell in table[0]
+            ]
+
+            # A real header row has at least one non-empty column label
+            # besides the first (row-label) cell -- skip anything that
+            # doesn't look like a header.
+            if not any(header_row[1:]):
+                continue
+
+            for row in table[1:]:
+
+                cleaned = [(cell or "").strip() for cell in row]
+
+                if not cleaned or not cleaned[0]:
+                    continue
+
+                row_label = cleaned[0]
+
+                for col_index in range(
+                    1, min(len(header_row), len(cleaned))
+                ):
+
+                    column_label = header_row[col_index]
+                    value = cleaned[col_index]
+
+                    if column_label and value:
+
+                        lines.append(
+                            f"{column_label} | {row_label}: {value}"
+                        )
+
+        if not lines:
+            return ""
+
+        return (
+            "STRUCTURED PLACEMENT TABLE "
+            "(column-accurate, read from the PDF's actual table grid):\n"
+            + "\n".join(lines)
+        )
+
+    # ---------------------------------------------------------
     # Load normal PDF
     # ---------------------------------------------------------
 
@@ -112,9 +194,18 @@ class DocumentLoader:
 
         documents = []
 
+        is_placement_file = "placement" in pdf.name.lower()
+
+        plumber_document = None
+
         try:
 
             pdf_document = fitz.open(str(pdf))
+
+            if is_placement_file:
+                # Only opened for placement PDFs -- everything else
+                # keeps using fitz-only extraction as before.
+                plumber_document = pdfplumber.open(str(pdf))
 
             logger.info(
                 f"[PDF] Loading: {pdf.name}"
@@ -140,6 +231,35 @@ class DocumentLoader:
                     )
 
                     text = self._ocr_page(page)
+
+                # -----------------------------------------
+                # Placement table: append a clean, column-
+                # accurate structured block built from the
+                # PDF's actual table grid, alongside the
+                # normal flattened text (which still has the
+                # recruiter list, MAXIMUM/MINIMUM/AVERAGE
+                # PACKAGE lines, etc. -- those are fine as
+                # plain text since each is a single clearly
+                # labeled number, not an ordered list of 8).
+                # -----------------------------------------
+
+                if is_placement_file and plumber_document:
+
+                    if page_number < len(plumber_document.pages):
+
+                        structured_table_text = (
+                            self._extract_placement_table_text(
+                                plumber_document.pages[page_number]
+                            )
+                        )
+
+                        if structured_table_text:
+
+                            text = (
+                                f"{text}\n\n{structured_table_text}"
+                                if text
+                                else structured_table_text
+                            )
 
                 # -----------------------------------------
                 # Skip completely empty pages
@@ -273,6 +393,9 @@ class DocumentLoader:
                 )
 
             pdf_document.close()
+
+            if plumber_document:
+                plumber_document.close()
 
             logger.info(
                 f"[SUCCESS] {pdf.name} -> "
