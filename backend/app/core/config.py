@@ -24,6 +24,12 @@ class Settings(BaseSettings):
 
     LANGUAGE: str
 
+    SF_USERNAME: str
+    SF_PASSWORD: str
+    SF_SECURITY_TOKEN: str
+    
+    LEAD_INTEREST_THRESHOLD: int = 3
+
     model_config = SettingsConfigDict(
         env_file=".env",
         case_sensitive=True

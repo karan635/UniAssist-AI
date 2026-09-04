@@ -14,6 +14,7 @@ def chat(
 ):
 
     question = request.get("question")
+    session_id = request.get("session_id")
 
     if not question:
 
@@ -23,7 +24,7 @@ def chat(
 
     try:
 
-        return service.chat(question)
+        return service.chat(question, session_id=session_id)
 
     except UniAssistException as e:
 

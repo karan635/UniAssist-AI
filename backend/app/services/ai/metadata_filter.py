@@ -42,6 +42,7 @@ class MetadataFilter:
             "BTECH": "B.TECH",
             "B.TECH.": "B.TECH",
             "B.TECH": "B.TECH",
+            "Btech": "B.TECH",
 
             # MCA
             "MCA": "MCA",

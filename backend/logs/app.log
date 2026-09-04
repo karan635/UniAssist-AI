@@ -194,3 +194,42 @@
 2026-08-23 12:31:38.986 | INFO     | app.services.rag.document_loader:_load_pdf:400 - [SUCCESS] Placement_2026.pdf -> 1 document(s)
 2026-08-23 12:31:38.986 | INFO     | app.services.rag.document_loader:load_documents:450 - 
 [TOTAL] Documents/pages loaded: 21
+2026-08-30 14:06:54.218 | ERROR    | app.services.crm.salesforce_service:_get_client:33 - [SALESFORCE] Authentication failed: Authentication failed (code: INVALID_OPERATION): SOAP API login() is disabled by default in this org. Contact the org administrator to enable SOAP API login().
+2026-08-30 14:28:47.352 | ERROR    | app.services.crm.salesforce_service:_get_client:33 - [SALESFORCE] Authentication failed: Authentication failed (code: INVALID_OPERATION): SOAP API login() is disabled by default in this org. Contact the org administrator to enable SOAP API login().
+2026-08-30 14:31:49.072 | ERROR    | app.services.crm.salesforce_service:_get_client:33 - [SALESFORCE] Authentication failed: Authentication failed (code: INVALID_OPERATION): SOAP API login() is disabled by default in this org. Contact the org administrator to enable SOAP API login().
+2026-08-30 14:32:49.611 | ERROR    | app.services.crm.salesforce_service:_get_client:33 - [SALESFORCE] Authentication failed: Authentication failed (code: INSUFFICIENT_ACCESS): SOAP API login() requires the Use Any API Auth user permission.
+2026-08-30 14:39:43.804 | ERROR    | app.services.crm.salesforce_service:_get_client:33 - [SALESFORCE] Authentication failed: Authentication failed (code: INSUFFICIENT_ACCESS): SOAP API login() requires the Use Any API Auth user permission.
+2026-08-30 14:46:46.440 | ERROR    | app.services.crm.salesforce_service:_get_client:33 - [SALESFORCE] Authentication failed: Authentication failed (code: INSUFFICIENT_ACCESS): SOAP API login() requires the Use Any API Auth user permission.
+2026-08-30 15:03:39.994 | ERROR    | app.services.crm.salesforce_service:_get_client:32 - [SALESFORCE] Authentication failed: Authentication failed (code: INSUFFICIENT_ACCESS): SOAP API login() requires the Use Any API Auth user permission.
+2026-08-30 16:09:38.044 | ERROR    | app.services.crm.salesforce_service:_get_client:32 - [SALESFORCE] Authentication failed: Authentication failed (code: INSUFFICIENT_ACCESS): SOAP API login() requires the Use Any API Auth user permission.
+2026-08-31 19:37:58.710 | INFO     | app.services.rag.document_loader:_load_pdf:210 - [PDF] Loading: Placement_2025.pdf
+2026-08-31 19:37:58.787 | INFO     | app.services.rag.document_loader:_load_pdf:400 - [SUCCESS] Placement_2025.pdf -> 2 document(s)
+2026-09-02 18:55:08.859 | INFO     | app.services.rag.document_loader:_load_pdf:210 - [PDF] Loading: Admission_Btech.pdf
+2026-09-02 18:55:08.910 | INFO     | app.services.rag.document_loader:_load_pdf:400 - [SUCCESS] Admission_Btech.pdf -> 5 document(s)
+2026-09-04 10:38:07.624 | INFO     | app.services.rag.document_loader:_load_pdf:210 - [PDF] Loading: Admission_Btech.pdf
+2026-09-04 10:38:07.685 | INFO     | app.services.rag.document_loader:_load_pdf:400 - [SUCCESS] Admission_Btech.pdf -> 5 document(s)
+2026-09-04 10:43:17.676 | INFO     | app.services.rag.document_loader:_load_pdf:210 - [PDF] Loading: Admission_Btech.pdf
+2026-09-04 10:43:17.711 | INFO     | app.services.rag.document_loader:_load_pdf:400 - [SUCCESS] Admission_Btech.pdf -> 5 document(s)
+2026-09-04 12:37:24.643 | INFO     | app.services.rag.document_loader:_load_pdf:210 - [PDF] Loading: Admission_Btech.pdf
+2026-09-04 12:37:24.686 | INFO     | app.services.rag.document_loader:_load_pdf:400 - [SUCCESS] Admission_Btech.pdf -> 4 document(s)
+2026-09-04 12:41:23.704 | INFO     | app.services.rag.document_loader:load_documents:440 - 
+========== DOCUMENT LOADING ==========
+2026-09-04 12:41:23.706 | INFO     | app.services.rag.document_loader:_load_pdf:210 - [PDF] Loading: AcademicCalendar MO-2026.pdf
+2026-09-04 12:41:23.711 | INFO     | app.services.rag.document_loader:_load_pdf:228 - [OCR] Using OCR for AcademicCalendar MO-2026.pdf - Page 1
+2026-09-04 12:41:28.061 | INFO     | app.services.rag.document_loader:_load_pdf:228 - [OCR] Using OCR for AcademicCalendar MO-2026.pdf - Page 2
+2026-09-04 12:41:31.122 | INFO     | app.services.rag.document_loader:_load_pdf:228 - [OCR] Using OCR for AcademicCalendar MO-2026.pdf - Page 3
+2026-09-04 12:41:34.606 | INFO     | app.services.rag.document_loader:_load_pdf:400 - [SUCCESS] AcademicCalendar MO-2026.pdf -> 3 document(s)
+2026-09-04 12:41:34.622 | INFO     | app.services.rag.document_loader:_load_pdf:210 - [PDF] Loading: Admission_Btech.pdf
+2026-09-04 12:41:34.646 | INFO     | app.services.rag.document_loader:_load_pdf:400 - [SUCCESS] Admission_Btech.pdf -> 4 document(s)
+2026-09-04 12:41:34.646 | INFO     | app.services.rag.document_loader:_load_pdf:210 - [PDF] Loading: Admission_MCA.pdf
+2026-09-04 12:41:34.664 | INFO     | app.services.rag.document_loader:_load_pdf:400 - [SUCCESS] Admission_MCA.pdf -> 3 document(s)
+2026-09-04 12:41:34.664 | INFO     | app.services.rag.document_loader:_load_pdf:210 - [PDF] Loading: Fees.pdf
+2026-09-04 12:41:34.791 | INFO     | app.services.rag.document_loader:_load_pdf:400 - [SUCCESS] Fees.pdf -> 11 document(s)
+2026-09-04 12:41:34.811 | INFO     | app.services.rag.document_loader:_load_pdf:210 - [PDF] Loading: Placement_2024.pdf
+2026-09-04 12:41:34.941 | INFO     | app.services.rag.document_loader:_load_pdf:400 - [SUCCESS] Placement_2024.pdf -> 2 document(s)
+2026-09-04 12:41:34.941 | INFO     | app.services.rag.document_loader:_load_pdf:210 - [PDF] Loading: Placement_2025.pdf
+2026-09-04 12:41:35.053 | INFO     | app.services.rag.document_loader:_load_pdf:400 - [SUCCESS] Placement_2025.pdf -> 2 document(s)
+2026-09-04 12:41:35.069 | INFO     | app.services.rag.document_loader:_load_pdf:210 - [PDF] Loading: Placement_2026.pdf
+2026-09-04 12:41:35.191 | INFO     | app.services.rag.document_loader:_load_pdf:400 - [SUCCESS] Placement_2026.pdf -> 1 document(s)
+2026-09-04 12:41:35.191 | INFO     | app.services.rag.document_loader:load_documents:450 - 
+[TOTAL] Documents/pages loaded: 26

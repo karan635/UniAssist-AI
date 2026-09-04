@@ -10,6 +10,7 @@ from app.api.v1.knowledge import router as knowledge_router
 from app.api.v1.index import router as index_router
 from app.api.v1.search import router as search_router
 from app.api.v1.query import router as query_router
+from app.api.v1.leads import router as leads_router
 from app.api.v1 import chat
 
 load_dotenv()
@@ -67,3 +68,8 @@ app.include_router(
     tags=["Documents"]
 )
 
+app.include_router(
+    leads_router,
+    prefix="/api/v1",
+    tags=["Leads"]
+)

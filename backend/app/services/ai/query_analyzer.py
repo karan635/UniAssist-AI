@@ -135,6 +135,7 @@ class QueryAnalyzer:
             "BTECH": "B.TECH",
             "B.TECH": "B.TECH",
             "B.TECH.": "B.TECH",
+            "btech": "B.TECH",
 
             "MTECH": "M.TECH",
             "M.TECH": "M.TECH",
