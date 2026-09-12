@@ -8,5 +8,7 @@ import os
 BACKEND_URL = os.getenv("BACKEND_URL", "http://localhost:8000")
 
 CHAT_ENDPOINT = f"{BACKEND_URL}/api/v1/chat"
+VOICE_TRANSCRIBE_ENDPOINT = f"{BACKEND_URL}/api/v1/voice/transcribe"
+VOICE_SPEAK_ENDPOINT = f"{BACKEND_URL}/api/v1/voice/speak"
 
 REQUEST_TIMEOUT_SECONDS = 60

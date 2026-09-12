@@ -12,6 +12,7 @@ from app.api.v1.search import router as search_router
 from app.api.v1.query import router as query_router
 from app.api.v1.leads import router as leads_router
 from app.api.v1 import chat
+from app.api.v1.voice import router as voice_router
 
 load_dotenv()
 app = FastAPI(
@@ -23,6 +24,11 @@ app.include_router(
     chat.router,
     prefix="/api/v1",
     tags=["Chat"]
+)
+app.include_router(
+    voice_router,
+    prefix="/api/v1",
+    tags=["Voice"]
 )
 
 app.include_router(

@@ -11,8 +11,10 @@ import streamlit as st
 
 from utils.api_client import ask_question, BackendError
 from components.chat_ui import render_history, render_message, render_sources
+from components.voice_assistant import render_voice_assistant
 
 
+render_voice_assistant()
 st.set_page_config(
     page_title="UniAssist AI",
     page_icon="🎓",
