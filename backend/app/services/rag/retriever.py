@@ -35,7 +35,7 @@ class RetrieverService:
         "Fees": 8,
         "Eligibility": 5,
         "Admission": 6,
-        "Placement": 10,
+        "Placement": 18,
         "Academic Calendar": 8,
     }
 
@@ -66,6 +66,18 @@ class RetrieverService:
         # contents are stable for this instance's lifetime.
         self._all_documents = list(self.db.docstore._dict.values())
 
+        # Same reasoning as _all_documents above: _expand_related_chunks
+        # previously rebuilt this filename -> [documents] grouping from
+        # scratch on every call (every Eligibility query), rescanning the
+        # full docstore each time. Since _all_documents is fixed for this
+        # instance's lifetime, the grouping is fixed too -- build it once
+        # here instead.
+        self._documents_by_filename = {}
+        for candidate in self._all_documents:
+            self._documents_by_filename.setdefault(
+                candidate.metadata.get("filename"), []
+            ).append(candidate)
+
     # =================================================
     # EXPAND RELATED CHUNKS
     # =================================================
@@ -82,14 +94,9 @@ class RetrieverService:
         if not documents:
             return documents
 
-        # Group candidates by filename once per call instead of rescanning
-        # the entire docstore for every document being expanded -- each
-        # document then only searches within its own file's chunks.
-        by_filename = {}
-        for candidate in all_documents:
-            by_filename.setdefault(
-                candidate.metadata.get("filename"), []
-            ).append(candidate)
+        # Precomputed once in __init__ (see _documents_by_filename) instead
+        # of being rebuilt here on every call.
+        by_filename = self._documents_by_filename
 
         expanded = list(documents)
         expanded_ids = {id(doc) for doc in expanded}
@@ -357,7 +364,21 @@ class RetrieverService:
         # =================================================
 
         final_k = self.TOPIC_K.get(topic, 5)
-        filtered = filtered[:final_k]
+
+        year_present={doc.metadata.get("year") for doc in filtered if doc.metadata.get("year") is not None}
+        if not year_present and len(year_present) > 1:
+            pre_year_cap = max(1,final_k//len(year_present))
+            capped = []
+            seen_per_year = {}
+            for doc in filtered:
+                doc_year=doc.metadata.get("year")
+                count = seen_per_year.get(doc_year,0)
+                if count < pre_year_cap:
+                    capped.append(doc)
+                    seen_per_year[doc_year] = count + 1
+            filtered = capped
+        else:
+            filtered = filtered[:final_k]
 
         # =================================================
         # 10. FINAL DOCUMENT DEBUG
